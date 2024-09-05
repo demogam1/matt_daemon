@@ -43,18 +43,19 @@ def connect_to_socket(port, message):
 # Start the daemon and check if it runs in the background
 def start_daemon():
     if not is_running_as_root():
-        print("Test failed: The program must run with root rights.")
+        print("\033[91m❌ Test failed: The program must run with root rights.\033[0m")
         return False
     try:
         # Start the daemon in the background
         subprocess.Popen([DAEMON_EXECUTABLE])
         time.sleep(3)  # Give time for the daemon to initialize
         if not file_exists(LOCK_FILE):
-            print("Test failed: Lock file was not created.")
+            print("\033[91m❌ Test failed: Lock file was not created.\033[0m")
             return False
+        print("\033[92m✅ Daemon started successfully.\033[0m")
         return True
     except Exception as e:
-        print(f"Test failed: Unable to start daemon. Error: {e}")
+        print(f"\033[91m❌ Test failed: Unable to start daemon. Error: {e}\033[0m")
         return False
 
 # Test whether the daemon refuses a second instance
@@ -62,12 +63,12 @@ def test_single_instance():
     if file_exists(LOCK_FILE):
         second_process = subprocess.run([DAEMON_EXECUTABLE], capture_output=True, text=True)
         if "Error: Could not create lock file" not in second_process.stderr:
-            print("Test failed: Second instance of daemon did not fail.")
+            print("\033[91m❌ Test failed: Second instance of daemon did not fail.\033[0m")
             return False
-        print("Test passed: Second instance correctly failed.")
+        print("\033[92m✅ Test passed: Second instance correctly failed.\033[0m")
         return True
     else:
-        print("Test failed: First instance did not create lock file.")
+        print("\033[91m❌ Test failed: First instance did not create lock file.\033[0m")
         return False
 
 # Test daemon's ability to receive and log messages
@@ -75,13 +76,13 @@ def test_logging_and_quit():
     # Send a regular message
     response = connect_to_socket(DAEMON_PORT, "hello")
     if "Connection refused" in response:
-        print("Test failed: Connection to daemon refused.")
+        print("\033[91m❌ Test failed: Connection to daemon refused.\033[0m")
         return False
 
     # Check if the message was logged
     time.sleep(1)  # Give time for the log to update
     if not log_contains("hello"):
-        print("Test failed: 'hello' message was not logged.")
+        print("\033[91m❌ Test failed: 'hello' message was not logged.\033[0m")
         return False
 
     # Send "quit" message and check if daemon shuts down
@@ -89,14 +90,14 @@ def test_logging_and_quit():
     time.sleep(30)  # Give time for the daemon to shut down
 
     if not log_contains("Received quit command"):
-        print("Test failed: Daemon did not log 'quit' message.")
+        print("\033[91m❌ Test failed: Daemon did not log 'quit' message.\033[0m")
         return False
 
     if file_exists(LOCK_FILE):
-        print("Test failed: Lock file not removed after shutdown.")
+        print("\033[91m❌ Test failed: Lock file not removed after shutdown.\033[0m")
         return False
 
-    print("Test passed: Daemon handled messages and quit correctly.")
+    print("\033[92m✅ Test passed: Daemon handled messages and quit correctly.\033[0m")
     return True
 
 # Test maximum client connections
@@ -111,10 +112,10 @@ def test_max_clients():
         # Fourth connection should fail
         response = connect_to_socket(DAEMON_PORT, "test")
         if "Connection refused" not in response:
-            print("Test failed: Fourth connection was not refused.")
+            print("\033[91m❌ Test failed: Fourth connection was not refused.\033[0m")
             return False
 
-        print("Test passed: Maximum client connection limit enforced.")
+        print("\033[92m✅ Test passed: Maximum client connection limit enforced.\033[0m")
         return True
     finally:
         # Close any open sockets
@@ -128,14 +129,14 @@ def test_signal_handling():
     time.sleep(20)  # Give time for the log to update
 
     if not log_contains("Signal received: 15"):  # SIGTERM signal
-        print("Test failed: SIGTERM was not logged.")
+        print("\033[91m❌ Test failed: SIGTERM was not logged.\033[0m")
         return False
 
     if file_exists(LOCK_FILE):
-        print("Test failed: Lock file not removed after signal termination.")
+        print("\033[91m❌ Test failed: Lock file not removed after signal termination.\033[0m")
         return False
 
-    print("Test passed: Daemon handled SIGTERM correctly.")
+    print("\033[92m✅ Test passed: Daemon handled SIGTERM correctly.\033[0m")
     return True
 
 # Run all tests
@@ -168,7 +169,7 @@ def run_tests():
     if not test_signal_handling():
         return
 
-    print("All tests passed successfully.")
+    print("\033[92m🎉 All tests passed successfully! 🎉\033[0m")
 
 if __name__ == "__main__":
     run_tests()
