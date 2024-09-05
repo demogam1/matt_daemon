@@ -54,12 +54,12 @@ public:
     // Constructor
     daemon_class()
     {
-        if (fileExists("/var/lock/matt_daemon.lock"))
-        {
-            throw std::runtime_error("Error: Could not create lock file /var/run/matt_daemon.lock. Daemon is likely already running.");
-            logger.log(-1,"Error file locked.");
-            exit(EXIT_FAILURE);
-        }
+        // if (fileExists("/var/lock/matt_daemon.lock"))
+        // {
+        //     throw std::runtime_error("Error: Could not create lock file /var/run/matt_daemon.lock. Daemon is likely already running.");
+        //     logger.log(-1,"Error file locked.");
+        //     exit(EXIT_FAILURE);
+        // }
 
         logger.log(0, "matt_daemon starts");
 
@@ -93,7 +93,7 @@ public:
 
         createFile("/var/lock/matt_daemon.lock");
         logger.log(0, "Daemon started successfully");
-        
+        std::cout <<  "Matt_daemon started successfully" << std::endl;
         // Register signal handlers
         signal(SIGHUP, signal_handler);   // Terminal hangup
         signal(SIGINT, signal_handler);   // Interrupt from keyboard (Ctrl + C)

@@ -14,6 +14,12 @@ class Tintin_reporter
         //==================================================//
         Tintin_reporter(const std::string &logFilePath) : logFilePath("/var/log/matt_daemon.log"), logFile(logFilePath, std::ios_base::app) 
         {
+            if (fileExists("/var/lock/matt_daemon.lock"))
+            {
+                log(-1,"Error file locked.");
+                throw std::runtime_error("Error: Could not create lock file /var/run/matt_daemon.lock. Daemon is likely already running.");
+                exit(EXIT_FAILURE);
+            }
             std::ifstream file ;
             file.open(logFilePath);
             file.close();
@@ -92,7 +98,31 @@ class Tintin_reporter
             return true;
         }
 
+        // Function to change the log file path and write to an existing file
+        void setLogFilePath(const std::string &newFilePath) 
+        {
+            if (logFile.is_open())
+                logFile.close(); // Close the currently open file
 
+            logFilePath = newFilePath;
+            logFile.open(logFilePath, std::ios_base::app); // Open the new file in append mode
+
+            if (!logFile.is_open()) 
+            {
+                std::cerr << "Failed to open the log file at: " << newFilePath << std::endl;
+                exit(EXIT_FAILURE);
+            }
+            else
+            {
+                std::cout << "Log file path changed to: " << newFilePath << std::endl;
+            }
+        }
+        // File existence check
+        bool fileExists(const std::string &filePath)
+        {
+            std::ifstream file(filePath);
+            return file.good();
+        }
     private:
         std::string logFilePath;  // Path to the log file
         std::ofstream logFile;    // File stream for logging
