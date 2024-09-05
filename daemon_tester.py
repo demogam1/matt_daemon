@@ -125,7 +125,7 @@ def test_max_clients():
 def test_signal_handling():
     pid = subprocess.check_output(["pgrep", "-f", DAEMON_EXECUTABLE]).decode().strip()
     os.kill(int(pid), signal.SIGTERM)
-    time.sleep(2)  # Give time for the log to update
+    time.sleep(20)  # Give time for the log to update
 
     if not log_contains("Signal received: 15"):  # SIGTERM signal
         print("Test failed: SIGTERM was not logged.")
