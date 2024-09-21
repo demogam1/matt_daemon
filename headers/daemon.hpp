@@ -162,9 +162,7 @@ public:
         int fd = open(lock_file, O_WRONLY, 0644);
         flock(fd, LOCK_UN) 
         close(fd);
-        if (unlink("/tmp/mylockfile.txt") == -1) 
-            perror("unlink");
-    }
+        unlink("/var/lock/matt_daemon.lock");    }
     // File creation utility
     bool createFile(const std::string &filePath)
     {
