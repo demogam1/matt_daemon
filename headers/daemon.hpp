@@ -21,6 +21,7 @@
 #include <thread>
 #include "./tintin_reporter.hpp"
 #include <fstream>
+#include <sys/file.h> 
 
 class daemon_class
 {
@@ -116,7 +117,7 @@ public:
 
         // Cleanup on exit
         logger.log(0, "Stopping matt_daemon");
-        delete_lock_file()
+        delete_lock_file();
         // deleteFile("/var/lock/matt_daemon.lock");
         closelog();
         exit(EXIT_SUCCESS);
@@ -126,7 +127,7 @@ public:
     ~daemon_class()
     {
         logger.log(0, "Daemon shutting down");
-        delete_lock_file()
+        delete_lock_file();
         // deleteFile("/var/lock/matt_daemon.lock");
         closelog();
     }
@@ -160,9 +161,10 @@ public:
     {
         const char *lock_file = "/var/lock/matt_daemon.lock";
         int fd = open(lock_file, O_WRONLY, 0644);
-        flock(fd, LOCK_UN) 
+        flock(fd, LOCK_UN) ;
         close(fd);
-        unlink("/var/lock/matt_daemon.lock");    }
+        unlink("/var/lock/matt_daemon.lock");    
+    }
     // File creation utility
     bool createFile(const std::string &filePath)
     {
