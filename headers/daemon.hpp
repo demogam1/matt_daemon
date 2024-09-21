@@ -54,12 +54,6 @@ public:
     // Constructor
     daemon_class()
     {
-        // if (fileExists("/var/lock/matt_daemon.lock"))
-        // {
-        //     throw std::runtime_error("Error: Could not create lock file /var/run/matt_daemon.lock. Daemon is likely already running.");
-        //     logger.log(-1,"Error file locked.");
-        //     exit(EXIT_FAILURE);
-        // }
 
         logger.log(0, "matt_daemon starts");
 
@@ -91,7 +85,10 @@ public:
         close(STDOUT_FILENO);
         close(STDERR_FILENO);
 
-        createFile("/var/lock/matt_daemon.lock");
+        if (init_lock_file() == -1)
+            exit(EXIT_FAILURE);
+        else
+            logger.log(0, "Lock file created successfully");
         logger.log(0, "Daemon started successfully");
         std::cout <<  "Matt_daemon started successfully" << std::endl;
         // Register signal handlers
@@ -119,7 +116,8 @@ public:
 
         // Cleanup on exit
         logger.log(0, "Stopping matt_daemon");
-        deleteFile("/var/lock/matt_daemon.lock");
+        delete_lock_file()
+        // deleteFile("/var/lock/matt_daemon.lock");
         closelog();
         exit(EXIT_SUCCESS);
     }
@@ -128,7 +126,8 @@ public:
     ~daemon_class()
     {
         logger.log(0, "Daemon shutting down");
-        deleteFile("/var/lock/matt_daemon.lock");
+        delete_lock_file()
+        // deleteFile("/var/lock/matt_daemon.lock");
         closelog();
     }
 
@@ -138,7 +137,34 @@ public:
         logger.log(0, "Daemon is alive");
         sleep(10);
     }
+    // flock
+    int init_lock_file()
+    {
+        const char *lock_file = "/var/lock/matt_daemon.lock";
+        int fd = open(lock_file, O_WRONLY | O_CREAT, 0644);
+        if (fd == -1 )
+        {
+            perror("Could not create matt_daemon.lock");
+            return -1;
+        }
 
+        if (flock(fd, LOCK_EX) == -1)
+        {
+            perror("flock error");
+            close(fd);
+            return -1;
+        }
+        return 1;
+    }
+    void delete_lock_file()
+    {
+        const char *lock_file = "/var/lock/matt_daemon.lock";
+        int fd = open(lock_file, O_WRONLY, 0644);
+        flock(fd, LOCK_UN) 
+        close(fd);
+        if (unlink("/tmp/mylockfile.txt") == -1) 
+            perror("unlink");
+    }
     // File creation utility
     bool createFile(const std::string &filePath)
     {
