@@ -65,7 +65,7 @@ class Tintin_reporter
         // -1 ERROR 0 INFO 1 LOG
         void log(int type, const std::string &message) 
         {
-            if (logFile.is_open())
+            if (logFile.is_open() && fileExists("/var/log/matt_daemon/matt_daemon.log"))
             {
                 if (type == -1) 
                     logFile << getCurrentDateTime() << " [ ERROR ] - Matt_daemon: " << message << std::endl;
@@ -74,7 +74,8 @@ class Tintin_reporter
                 else if (type == 1)
                     logFile << getCurrentDateTime() << " [ LOG ] - Matt_daemon: " << message << std::endl;
             }
-
+            else 
+                exit(EXIT_FAILURE);
         }
         std::string getCurrentDateTime() 
         {
@@ -119,8 +120,12 @@ class Tintin_reporter
         // File existence check
         bool fileExists(const std::string &filePath)
         {
-            std::ifstream file(filePath);
-            return file.good();
+            if (FILE *file = fopen(filePath.c_str(), "r")) {
+                fclose(file);
+                return true;
+            } else {
+                return false;
+            }   
         }
     private:
         std::string logFilePath;  // Path to the log file
