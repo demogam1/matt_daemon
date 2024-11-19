@@ -5,8 +5,8 @@ import time
 import signal
 import pwd
 
-DAEMON_EXECUTABLE = "./Matt_daemon"
-LOG_FILE = "/var/log/matt_daemon.log"
+DAEMON_EXECUTABLE = "./matt_daemon"
+LOG_FILE = "/var/log/matt_daemon/matt_daemon.log"
 LOCK_FILE = "/var/lock/matt_daemon.lock"
 DAEMON_PORT = 4242
 
@@ -173,3 +173,9 @@ def run_tests():
 
 if __name__ == "__main__":
     run_tests()
+
+
+# Check pourquoi il relance deamon plusieurs fois
+# Checker si flock est bien utiliser
+# Checker les signaux 
+# Checker le contenu du log file

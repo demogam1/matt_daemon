@@ -36,13 +36,13 @@ public:
             case SIGINT:  
             case SIGQUIT: 
             case SIGTERM:
+            case SIGPWR:
                 logger.log(0 ,"Signal received: " + std::to_string(signal) + ", stopping daemon...");
                 daemon_running = 0; // Stop the daemon
                 break;
             
             // Signals that are ignored or handled differently
             case SIGCHLD:
-            case SIGPWR:
             case SIGURG:
                 logger.log(0,"Signal received: " + std::to_string(signal));
                 break;
@@ -351,7 +351,7 @@ private:
 };
 
 // Initialize static members
-Tintin_reporter daemon_class::logger("/var/log/matt_daemon.log");
+Tintin_reporter daemon_class::logger("/var/log/matt_daemon/matt_daemon.log");
 volatile sig_atomic_t daemon_class::daemon_running = 1;  // Initialize the running flag
 
 #endif

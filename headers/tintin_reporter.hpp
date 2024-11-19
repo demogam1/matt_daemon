@@ -12,7 +12,7 @@ class Tintin_reporter
 {
     public:
         //==================================================//
-        Tintin_reporter(const std::string &logFilePath) : logFilePath("/var/log/matt_daemon.log"), logFile(logFilePath, std::ios_base::app) 
+        Tintin_reporter(const std::string &logFilePath) : logFilePath("/var/log/matt_daemon/matt_daemon.log"), logFile(logFilePath, std::ios_base::app) 
         {
             if (fileExists("/var/lock/matt_daemon.lock"))
             {
@@ -23,7 +23,7 @@ class Tintin_reporter
             std::ifstream file ;
             file.open(logFilePath);
             file.close();
-            if (createFile(logFilePath) == false || !logFile.is_open()) 
+            if (createFile(logFilePath) == false) 
             {
                 std::cerr << "Failed to open log file" << std::endl;
                 exit(EXIT_FAILURE);
@@ -86,6 +86,7 @@ class Tintin_reporter
         }
         bool createFile(const std::string &filePath) 
         {
+            std::filesystem::create_directory("/var/log/matt_daemon");
             std::ofstream file(filePath);
 
             if (!file) {
@@ -94,7 +95,7 @@ class Tintin_reporter
             }
             file.close();
 
-            std::cout << "File " << filePath << " created successfully." << std::endl;
+            // std::cout << "File " << filePath << " created successfully." << std::endl;
             return true;
         }
 
@@ -113,9 +114,7 @@ class Tintin_reporter
                 exit(EXIT_FAILURE);
             }
             else
-            {
                 std::cout << "Log file path changed to: " << newFilePath << std::endl;
-            }
         }
         // File existence check
         bool fileExists(const std::string &filePath)

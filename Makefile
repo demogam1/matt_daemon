@@ -1,4 +1,4 @@
-NAME=Matt_daemon
+NAME=matt_daemon
 
 FLAG=-Wall -Werror -Wextra
 
@@ -6,7 +6,9 @@ CC=g++
 
 SRC= ./srcs/main.cpp
 
-LOG= /var/log/matt_daemon.log
+LOG= /var/log/matt_daemon/matt_daemon.log
+
+LOG_FLD= /var/log/matt_daemon
 
 LOCK= /var/lock/matt_daemon.lock
 
